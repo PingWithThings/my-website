@@ -3,6 +3,7 @@ const form         = document.getElementById('todo-form');
 const todoInput    = document.getElementById('todo-input');
 const prioritySel  = document.getElementById('priority-select');
 const dueDateInput = document.getElementById('due-date-input');
+const dueTimeInput = document.getElementById('due-time-input');
 const searchInput  = document.getElementById('search-input');
 const filterSelect = document.getElementById('filter-select');
 const sortSelect   = document.getElementById('sort-select');
@@ -35,7 +36,7 @@ function toggleTheme() {
 }
 
 // — Add Todo —
-function addTodo() {
+/*function addTodo() {
   const text = todoInput.value.trim();
   if (!text) return;
   allTodos.push({
@@ -47,6 +48,37 @@ function addTodo() {
   saveTodos();
   form.reset();
   applyFilters();
+}*/
+
+function addTodo() {
+  const text    = todoInput.value.trim();
+  const dueTime = dueTimeInput.value;
+
+  if (!text) return;
+
+  const todo = {
+    text,
+    completed: false,
+    priority: prioritySel.value,
+    dueDate:  dueDateInput.value  || null,
+    dueTime:  dueTime             || null
+  };
+
+  allTodos.push(todo);
+  saveTodos();
+  form.reset();
+  applyFilters();
+
+  // — Schedule alert —
+  if (todo.dueDate && todo.dueTime) {
+    const dt   = new Date(`${todo.dueDate}T${todo.dueTime}`);
+    const diff = dt - new Date();
+    if (diff > 0) {
+      setTimeout(() => {
+        alert(`Reminder: It's time for your task: "${todo.text}"`);
+      }, diff);
+    }
+  }
 }
 
 // — Filters / Sort / Search —
@@ -117,7 +149,10 @@ function createTodoItem(todo, idx) {
       <small class="priority-label priority-${todo.priority ?? 'undefined'}">
         Priority: ${capitalize(todo.priority)}
       </small>
-      ${todo.dueDate ? `<small>Due: ${todo.dueDate}</small>` : ''}
+      <!--${todo.dueDate ? `<small>Due: ${todo.dueDate}</small>` : ''} -->
+      ${todo.dueDate
+        ? `<small>Due: ${todo.dueDate}${todo.dueTime ? ` at ${todo.dueTime}` : ''}</small>`
+        : ''}
     </div>
     <button class="edit-button"  title="Edit">
       <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41
