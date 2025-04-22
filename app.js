@@ -29,26 +29,6 @@ searchInput.addEventListener('input',  applyFilters);
 filterSelect.addEventListener('change', applyFilters);
 sortSelect.addEventListener('change',  applyFilters);
 
-// — Theme Toggle —
-function toggleTheme() {
-  document.body.classList.toggle('light-mode');
-  themeBtn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
-}
-
-// — Add Todo —
-/*function addTodo() {
-  const text = todoInput.value.trim();
-  if (!text) return;
-  allTodos.push({
-    text,
-    completed: false,
-    priority: prioritySel.value,
-    dueDate: dueDateInput.value || null
-  });
-  saveTodos();
-  form.reset();
-  applyFilters();
-}*/
 
 function addTodo() {
   const text    = todoInput.value.trim();
@@ -68,6 +48,7 @@ function addTodo() {
   saveTodos();
   form.reset();
   applyFilters();
+  showFeedbackMessage("Task added successfully!", "#00bfa6");
 
   // — Schedule alert —
   if (todo.dueDate && todo.dueTime) {
@@ -75,11 +56,23 @@ function addTodo() {
     const diff = dt - new Date();
     if (diff > 0) {
       setTimeout(() => {
-        alert(`Reminder: It's time for your task: "${todo.text}"`);
-      }, diff);
-    }
+          // Request permission if not granted already
+          if (Notification.permission === 'default') {
+              Notification.requestPermission().then(permission => {
+                  if (permission === 'granted') {
+                      showNotificationAndPlaySound(todo);
+                    }
+                  });
+              } else if (Notification.permission === 'granted') {
+                  // If permission already granted, just show notification and play sound
+                  showNotificationAndPlaySound(todo);
+              }
+          }, diff);
+      }
   }
-}
+  
+  }
+  
 
 // — Filters / Sort / Search —
 function applyFilters() {
@@ -180,6 +173,7 @@ function createTodoItem(todo, idx) {
     allTodos.splice(idx, 1);
     saveTodos();
     applyFilters();
+    showFeedbackMessage("Task Deleted successfully!", "#f44336");
   });
 
   // Inline Edit
@@ -194,17 +188,26 @@ function createTodoItem(todo, idx) {
 function startInlineEdit(li, idx, todo) {
   const content = li.querySelector('.todo-content');
   content.classList.add('editing');
+
+  // Ensure values are available, fallback to empty strings if undefined
+  const taskText = todo.text || '';
+  const taskPriority = todo.priority || 'low';
+  const taskDate = todo.dueDate || '';
+  const taskTime = todo.dueTime || '';
+
   content.innerHTML = `
-    <input type="text" class="edit-text" value="${todo.text}" />
+    <input type="text" class="edit-text" value="${taskText}" />
     <select class="edit-priority">
-      <option value="low"${todo.priority==='low'?' selected':''}>Low</option>
-      <option value="medium"${todo.priority==='medium'?' selected':''}>Medium</option>
-      <option value="high"${todo.priority==='high'?' selected':''}>High</option>
+      <option value="low"${taskPriority === 'low' ? 'selected' : ''}>Low</option>
+      <option value="medium"${taskPriority === 'medium' ? 'selected' : ''}>Medium</option>
+      <option value="high"${taskPriority === 'high' ? 'selected' : ''}>High</option>
     </select>
-    <input type="date" class="edit-due" value="${todo.dueDate||''}" />
+    <input type="date" class="edit-due" value="${taskDate}" />
+    <input type="time" class="edit-time" value="${taskTime}" />
     <button class="save-btn">Save</button>
     <button class="cancel-btn">Cancel</button>
   `;
+
   li.querySelector('.edit-button').style.display = 'none';
   li.querySelector('.delete-button').style.display = 'none';
 
@@ -212,17 +215,32 @@ function startInlineEdit(li, idx, todo) {
     const nt = content.querySelector('.edit-text').value.trim();
     const np = content.querySelector('.edit-priority').value;
     const nd = content.querySelector('.edit-due').value || null;
+    const ntm = content.querySelector('.edit-time').value || null;
+
     if (nt) allTodos[idx].text = nt;
     allTodos[idx].priority = np;
-    allTodos[idx].dueDate  = nd;
+    allTodos[idx].dueDate = nd;
+    allTodos[idx].dueTime = ntm;
+
     saveTodos();
     applyFilters();
+    showFeedbackMessage("Task Updated successfully!");
   });
 
   content.querySelector('.cancel-btn').addEventListener('click', () => {
     applyFilters();
   });
 }
+
+function showNotificationAndPlaySound(todo) {
+  new Notification(`Reminder: It's time for your task: "${todo.text}`);
+
+  const reminderSound = new Audio('sounds/simple-notification-152054.mp3');
+  reminderSound.play().catch(err => {
+      console.error("Error playing sound:", err);
+  });
+}
+
 
 // — Utilities —
 
@@ -257,12 +275,34 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // Toggle between dark and light mode
 function toggleTheme() {
+  // Toggle light/dark mode
   document.body.classList.toggle("light-mode");
 
+  // Set the theme in localStorage
   if (document.body.classList.contains("light-mode")) {
     localStorage.setItem("theme", "light");
   } else {
     localStorage.setItem("theme", "dark");
   }
+
+  // Update the theme button text (☀️ for light, 🌙 for dark)
+  themeBtn.textContent = document.body.classList.contains("light-mode") ? "☀️" : "🌙";
 }
 
+
+function showFeedbackMessage(message, color = '#00bfa6') {
+  const feedback = document.getElementById('feedback-message');
+  feedback.textContent = message;
+  feedback.style.backgroundColor = color; // Optional for error or custom feedback
+  feedback.style.display = 'block';
+
+  // Reset animation
+  feedback.classList.remove('fade');
+  void feedback.offsetWidth; // trigger reflow
+  feedback.classList.add('fade');
+
+  // Hide after 1s
+  setTimeout(() => {
+    feedback.style.display = 'none';
+  }, 1000);
+}

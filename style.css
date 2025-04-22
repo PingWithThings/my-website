@@ -3,7 +3,7 @@
   --card: #282830;
   --text: #ffffff;
   --muted: #a3a3b5;
-  --accent: #00ffc4;
+  --accent: #00bfa6;
   --danger: #ff0033;
   --done: #6c757d;
   /* semi‑transparent tints for priority backgrounds */
@@ -204,4 +204,25 @@ input:checked ~ .todo-content .todo-text {
   .todo-form, .controls {
     grid-template-columns: 1fr;
   }
+}
+
+.feedback-message {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4caf50; /* Green for success, you can customize */
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  display: none;
+  animation: fadeOut 1s forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; display: none; }
 }
