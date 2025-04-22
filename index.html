@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Todo App</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Todo App</h1>
+    <button id="theme-btn" class="theme-btn">🌙</button>
+  </header>
+
+  <div class="wrapper">
+    <!-- Add Task Form -->
+    <form id="todo-form" class="todo-form">
+      <input id="todo-input" type="text" placeholder="Add a new task…" autocomplete="off" />
+      <select id="priority-select">
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+      <input id="due-date-input" type="date" />
+      <input id="due-time-input" type="time"  step="1" value="00:00:00"/>
+      <button type="submit" class="btn">
+        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>Add Task</span>
+      </button>
+      
+    </form>
+
+    <!-- Search + Filter + Sort -->
+    <div class="controls">
+      <input id="search-input" type="text" placeholder="🔍 Search tasks…" />
+      <select id="filter-select">
+        <option value="all">All</option>
+        <option value="pending">Pending</option>
+        <option value="completed">Completed</option>
+      </select>
+      <select id="sort-select">
+        <option value="none">Sort By</option>
+        <option value="priority">Priority ↑</option>
+        <option value="dueDate">Due Date ↑</option>
+      </select>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div id="progress-bar"></div>
+      <span id="progress-text">0/0</span>
+    </div>
+
+    <!-- Todo List -->
+    <ul id="todo-list"></ul>
+    <p id="empty-state" class="empty-state">You're all caught up! 🎉</p>
+  </div>
+</body>
+</html>
